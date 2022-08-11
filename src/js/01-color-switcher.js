@@ -4,6 +4,8 @@ const endButton = document.querySelector("[data-stop]");
 startButton.addEventListener("click", changeBodyColor);
 endButton.addEventListener("click", stopChangeBodyColor);
 
+let timerId = null;
+
 function changeBodyColor(color) {
     timerId = setInterval(() => {
         const randomColor = getRandomHexColor()
