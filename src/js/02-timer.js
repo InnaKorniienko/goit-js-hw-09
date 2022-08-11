@@ -29,19 +29,19 @@ const options = {
       return window.alert("Please choose a date in the future");
     };
 button.removeAttribute('disabled');
+
+
+button.addEventListener("click", () => {
+  setInterval((delta) => {
+    const { days, hours, minutes, seconds } = convertMs(delta);
+  }, 1000);
+});
 }
 };
 
 flatpickr('input#datetime-picker', options);
 
 // flatpickr.onClose;
-
-// button.addEventListener("click", getTime());
-
-// function getTime() {
-//   const delta = options.selectedDates[0].getTime() - defaultDateCalendars.getTime();
-//   setInterval(convertMs(delta), 1000);
-// }
 
 
 function ddLeadingZero(value) {
