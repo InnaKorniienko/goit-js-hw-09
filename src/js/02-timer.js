@@ -1,16 +1,20 @@
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 import "flatpickr/dist/themes/material_blue.css";
+import Notiflix from 'notiflix';
 
-// const refs = {
-//   button:document.querySelector('button');
-//   input:document.querySelector('input#datetime-picker');
-//   timerEl:document.querySelector('.timer');
-// }
-const button = document.querySelector('button');
-const input = document.querySelector('input#datetime-picker');
-const timerEl = document.querySelector('.timer');
-timerEl.style.display = 'flex';
+const refs = {
+  button:document.querySelector('button'),
+  input:document.querySelector('input#datetime-picker'),
+  timerEl:document.querySelector('.timer'),
+  days: document.querySelector('[data-days]'),
+  hours: document.querySelector('[data-hours]'),
+  minutes: document.querySelector('[data-minutes]'),
+  seconds: document.querySelector('[data-seconds]'),
+}
+refs.timerEl.style.display = 'flex';
+refs.button.disabled = true;
+let timeoutID = null;
 
 const options = {
     enableTime: true,
@@ -19,30 +23,34 @@ const options = {
     minuteIncrement: 1,
 
     onClose(selectedDates) {
-    console.log("selectedDates: ", selectedDates[0])
-    const defaultDateCalendars = new Date();
-    console.log("defaultDateCalendars", defaultDateCalendars);
-    const delta = selectedDates[0].getTime() - defaultDateCalendars.getTime();
-    console.log(delta);
-    button.setAttribute('disabled', true);
-    if (delta <= 0) {
-      return window.alert("Please choose a date in the future");
-    };
-button.removeAttribute('disabled');
-
-
-button.addEventListener("click", () => {
-  setInterval((delta) => {
-    const { days, hours, minutes, seconds } = convertMs(delta);
-  }, 1000);
-});
+    // console.log("selectedDates: ", selectedDates[0])
+    // const defaultDateCalendars = new Date();
+    // console.log("defaultDateCalendars", defaultDateCalendars);
+    // const delta = selectedDates[0].getTime() - defaultDateCalendars.getTime();
+    // console.log(delta);
+    if (selectedDates[0] <= options.defaultDate) {
+      Notiflix.Notify.failure('Please choose a date in the future')
+      refs.button.disabled = true
+    }
+    if (selectedDates[0] >= options.defaultDate) {
+      {
+        refs.button.disabled = false
+      }
+    }
+  },
 }
-};
 
-flatpickr('input#datetime-picker', options);
+const calendar = flatpickr(refs.input, options)
 
-// flatpickr.onClose;
+refs.button.addEventListener('click', onButtonClick)
 
+function onButtonClick() {
+  timeoutID = setInterval(() => {
+    updateTime()
+  }, 1000)
+  refs.input.disabled = true
+  refs.button.disabled = true
+}
 
 function ddLeadingZero(value) {
   return String(value).padStart(2, '0')
@@ -68,8 +76,20 @@ function convertMs(ms) {
   return { days, hours, minutes, seconds };
 }
 
-// console.log(convertMs(2000)); // {days: 0, hours: 0, minutes: 0, seconds: 2}
-// console.log(convertMs(140000)); // {days: 0, hours: 0, minutes: 2, seconds: 20}
-// console.log(convertMs(24140000)); // {days: 0, hours: 6 minutes: 42, seconds: 20}
 
-convertMs(); 
+function updateTime() {
+  const currentTime = new Date()
+  const selectedTime = new Date(refs.input.value)
+
+  const deltaTime = selectedTime - currentTime
+
+  if (deltaTime < 0) {
+    return
+  } else {
+    const { days, hours, minutes, seconds } = convertMs(deltaTime)
+    refs.days.textContent = `${days}`
+    refs.hours.textContent = `${hours}`
+    refs.minutes.textContent = `${minutes}`
+    refs.seconds.textContent = `${seconds}`
+  }
+}
